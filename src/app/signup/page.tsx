@@ -11,6 +11,7 @@ import SoftyEduLogo from "@/../public/SoftyEduLogo.svg";
 import Salt from "@/../public/Saly-1.png";
 import Link from "next/link";
 import { insertAccount } from "@/Data/INSERT/insertAccoount";
+import { useRouter } from "next/router";
 
 const Home: React.FC = () => {
   const {
@@ -18,12 +19,14 @@ const Home: React.FC = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
+  const router = useRouter();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
     console.log(data);
     if (data.password == data.confirmPassword) {
       insertAccount(data);
     }
+    router.push('/students')
   };
 
   return (

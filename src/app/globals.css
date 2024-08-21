@@ -12,3 +12,7 @@
   right: 0.6rem;
   transform: translateY(-50%);
 }
+
+.shadow-right-md {
+  box-shadow: 0px 4px 7px 0px #4646460F;
+}
