@@ -118,6 +118,7 @@ const App: React.FC = () => {
   const [data, setData] = useState<DataType[]>();
   const [loading, setLoading] = useState(false);
   const [filteredColumns, setfilteredColumns] = useState(columns);
+  const [hideFilters, setHideFilters] = useState<boolean>(false);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
@@ -203,7 +204,12 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+    <button onClick={() => {
+        setHideFilters(!hideFilters);
+    }}>
+        hide
+    </button>
+      <div className={`flex flex-wrap gap-2 ${hideFilters ? 'hidden' : ''}`}>
         {newColumns.map((column) => (
           <div key={column.key} className="flex gap-2">
             <Switch
