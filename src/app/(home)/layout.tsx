@@ -6,9 +6,9 @@ export default function HomeLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <div
-        className={`transition-colors duration-300 bg-slate-50 flex`}
+        className={`transition-colors duration-300 bg-white flex`}
       >
-        <aside className="transition-colors duration-300 bg-white px-4 flex w-80 flex-col items-center h-screen shadow-right-md">
+        <aside className="transition-colors duration-300 bg-slate-50 px-4 flex w-80 flex-col items-center h-screen shadow-right-md">
           <br />
           <Image height="130" width="130" src={SoftyEduLogo} alt="Logo" />
           <br />

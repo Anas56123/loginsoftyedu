@@ -1,9 +1,8 @@
 "use client";
-import Image from "next/image";
 import { useState } from "react";
-import IB from "@/../public/Import button.png";
-import EB from "@/../public/Export button.png";
 import TableComponent from "@/Components/Table";
+import { Button } from "antd";
+import { FileDown, FileUp } from "lucide-react";
 
 export default function Home() {
   const [data, setData] = useState([]);
@@ -23,8 +22,22 @@ export default function Home() {
           </p>
         </div>
         <div className="flex items-end gap-2">
-            <button><Image src={IB} alt="" /></button>
-            <button><Image src={EB} alt="" /></button>
+        <Button
+            className="bg-white text-[#647fa8] border border-[#647fa8] hover:!bg-white hover:!text-[#4096ff] hover:!border-[#4096ff] w-28 h-11"
+            type="primary"
+            size='large'
+            icon={<FileUp size={20} />}
+          >
+            Import
+          </Button>
+          <Button
+            className="bg-white text-[#647fa8] border border-[#647fa8] hover:!bg-white hover:!text-[#4096ff] hover:!border-[#4096ff] w-28 h-11"
+            type="primary"
+            size='large'
+            icon={<FileDown size={20} />}
+          >
+            Export
+          </Button>
         </div>
       </div>
       <br />

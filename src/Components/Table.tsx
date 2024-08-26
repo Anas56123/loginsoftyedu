@@ -1,8 +1,30 @@
 import React, { useEffect, useState } from "react";
-import type { CheckboxOptionType, GetProp, TableProps } from "antd";
-import { Table, ConfigProvider, Checkbox, Switch } from "antd";
+import type { GetProp, TableProps } from "antd";
+import {
+  Table,
+  ConfigProvider,
+  Switch,
+  Button,
+  Input,
+  Popover,
+  Select,
+} from "antd";
 import type { SorterResult } from "antd/es/table/interface";
 import supabase from "@/Data/Supabase/Supabase";
+import {
+  CirclePlus,
+  EllipsisVertical,
+  Filter,
+  Layers,
+  Mail,
+  Pencil,
+  Trash2,
+  User,
+} from "lucide-react";
+import Image from "next/image";
+import AsidePopup from "./AsidePopup";
+import { insertStudents } from "@/Data/INSERT/insertStudents";
+import AsidePop from "./Aside";
 
 type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 type TablePaginationConfig = Exclude<
@@ -12,21 +34,14 @@ type TablePaginationConfig = Exclude<
 
 interface DataType {
   id: number;
-  name: string;
-  email: string;
-  phone_number: string;
-  address: string;
-  createdAt: string;
-  nationality: string;
-  age_groupe: string;
-  company_name: string;
-  points_balance: number;
-  github_link: string;
-  linkedin_link: string;
-  discord_id: string;
-  website_link: string;
-  job_title: string[];
+  name: string | null;
+  email: string | null;
+  phone_number: string | null;
+  address: string | null;
+  nationality: string | null;
+  job_title: string[] | null;
 }
+[];
 
 interface TableParams {
   pagination?: TablePaginationConfig;
@@ -40,74 +55,71 @@ const columns: ColumnsType<DataType> = [
     title: "Name",
     dataIndex: "name",
     sorter: true,
-    render: (name) => name,
+    render: (name) => (!name ? "-" : name),
     key: "1",
   },
   {
     title: "Email",
     dataIndex: "email",
+    render: (col) => (!col ? "-" : col),
     key: "2",
   },
   {
     title: "Phone Number",
     dataIndex: "phone_number",
+    render: (col) => (!col ? "-" : col),
     key: "3",
   },
   {
     title: "Address",
     dataIndex: "address",
+    render: (col) => (!col ? "-" : col),
     key: "4",
   },
+
   {
     title: "Nationality",
     dataIndex: "nationality",
+    render: (col) => (!col ? "-" : col),
     key: "5",
-  },
-  {
-    title: "Age Group",
-    dataIndex: "age_groupe",
-    key: "6",
   },
   {
     title: "Job Title",
     dataIndex: "job_title",
-    render: (jobTitles: string[]) => jobTitles.join(", "),
+    render: (jobTitles: string[]) => (!jobTitles ? "-" : jobTitles.join(", ")),
     key: "7",
   },
   {
-    title: "Company Name",
-    dataIndex: "company_name",
+    title: "action",
+    dataIndex: "action",
+    render: (_, record) => (
+      <Popover
+        content={
+          <div className="flex flex-col gap-5">
+            <Button
+              className="text-lg border-transparent hover:!border-transparent shadow-none text-gray-400 !justify-start"
+              icon={<Pencil className="text-black" size={20} />}
+            >
+              Edit
+            </Button>
+            <Button
+              className="text-lg border-transparent hover:!border-transparent shadow-none text-gray-400"
+              icon={<Trash2 size={20} className="text-red-600" />}
+            >
+              Delete
+            </Button>
+          </div>
+        }
+        placement="bottomRight"
+        trigger="click"
+      >
+        <Button
+          className="bg-transparent border-transparent hover:!bg-transparent hover:!border-transparent shadow-none"
+          icon={<EllipsisVertical size={20} />}
+        />
+      </Popover>
+    ),
     key: "8",
-  },
-  {
-    title: "Points Balance",
-    dataIndex: "points_balance",
-    key: "9",
-  },
-  {
-    title: "GitHub Link",
-    dataIndex: "github_link",
-    key: "10",
-  },
-  {
-    title: "LinkedIn Link",
-    dataIndex: "linkedin_link",
-    key: "11",
-  },
-  {
-    title: "Discord ID",
-    dataIndex: "discord_id",
-    key: "12",
-  },
-  {
-    title: "Website Link",
-    dataIndex: "website_link",
-    key: "13",
-  },
-  {
-    title: "Created At",
-    dataIndex: "createdAt",
-    key: "14",
   },
 ];
 
@@ -119,28 +131,39 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [filteredColumns, setfilteredColumns] = useState(columns);
   const [hideFilters, setHideFilters] = useState<boolean>(false);
+  const [iUE, setIUE] = useState<boolean>(false);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
       pageSize: 5,
     },
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const options = columns.map(({ key, title }) => ({
-    label: title,
-    value: key,
-  }));
+  const handleOk = async () => {
+    insertStudents()
+  };
 
-  const newColumns = columns.map((item) => ({
-    ...item,
-    hidden: !checkedList.includes(item.key as string),
-  }));
+  const newColumns = columns.map((item) => {
+    console.log({ item });
+    if (item.title === "action") return null;
+    return {
+      ...item,
+      hidden: !checkedList.includes(item?.key as string),
+    };
+  });
+
+  console.log({ newColumns });
 
   const fetchData = async () => {
     setLoading(true);
 
-    let { data: students, error } = await supabase.from("students").select("*");
+    let { data: students, error } = await supabase
+      .from("students")
+      .select("*")
+      .or(`name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
 
     if (error) {
       setLoading(false);
@@ -155,10 +178,12 @@ const App: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     tableParams.pagination?.pageSize,
     tableParams.sortOrder,
     tableParams.sortField,
+    searchQuery,
   ]);
 
   const handleTableChange: TableProps<DataType>["onChange"] = (
@@ -204,23 +229,6 @@ const App: React.FC = () => {
 
   return (
     <>
-    <button onClick={() => {
-        setHideFilters(!hideFilters);
-    }}>
-        hide
-    </button>
-      <div className={`flex flex-wrap gap-2 ${hideFilters ? 'hidden' : ''}`}>
-        {newColumns.map((column) => (
-          <div key={column.key} className="flex gap-2">
-            <Switch
-              defaultChecked
-              onChange={(checked) => onChange(column.key, checked)}
-            />
-            <p>{String(column.title)}</p>
-          </div>
-        ))}
-      </div>
-
       <ConfigProvider
         theme={{
           components: {
@@ -231,6 +239,65 @@ const App: React.FC = () => {
           },
         }}
       >
+        <Input
+          placeholder="Placeholder"
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+          }}
+          className="w-96"
+        />
+        <div className="flex items-center justify-end gap-2">
+          <Button
+            className="bg-white text-[#6c48ca] border border-[#6c48ca] hover:!bg-white hover:!text-[#6d48ca87] hover:!border-[#6d48ca87]"
+            type="primary"
+            size="large"
+            icon={<Layers size={20} />}
+            onClick={() => setHideFilters(!hideFilters)}
+          >
+            Columns
+          </Button>
+          <Button
+            className="bg-white text-[#647fa8] border border-[#647fa8] hover:!bg-white hover:!text-[#4096ff] hover:!border-[#4096ff]"
+            type="primary"
+            size="large"
+            icon={<Filter size={20} />}
+          >
+            Filters
+          </Button>
+          <Button
+            className="h-11"
+            type="primary"
+            size="large"
+            icon={<CirclePlus size={20} />}
+            onClick={() => {
+              setIsModalOpen(true);
+            }}
+          >
+            Add New Student
+          </Button>
+        </div>
+        <div>
+        <AsidePop setClose={() => setIsModalOpen(false)} setIUE={setIUE} iUE={iUE} isOpen={isModalOpen} handleOk={handleOk} />
+        </div>
+        <br />
+        <div className={`${!hideFilters ? "hidden" : ""}`}>
+          <div className={`flex flex-wrap gap-8`}>
+            {newColumns.map(
+              (column) =>
+                column && (
+                  <div key={column?.key} className="flex gap-3">
+                    <Switch
+                      defaultChecked
+                      onChange={(checked) => onChange(column?.key, checked)}
+                    />
+                    <p>{String(column?.title)}</p>
+                  </div>
+                )
+            )}
+          </div>
+          <br />
+        </div>
+
         <Table
           columns={filteredColumns}
           rowKey={(record) => record.id}
@@ -245,6 +312,9 @@ const App: React.FC = () => {
           }}
           loading={loading}
           onChange={handleTableChange}
+          rowSelection={{
+            type: "checkbox",
+          }}
         />
       </ConfigProvider>
     </>
