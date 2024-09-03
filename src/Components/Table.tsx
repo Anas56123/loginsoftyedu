@@ -16,15 +16,13 @@ import {
   EllipsisVertical,
   Filter,
   Layers,
-  Mail,
   Pencil,
   Trash2,
-  User,
 } from "lucide-react";
-import Image from "next/image";
-import AsidePopup from "./AsidePopup";
 import { insertStudents } from "@/Data/INSERT/insertStudents";
 import AsidePop from "./Aside";
+import { deleteStudent } from "@/Data/DELETE/deleteStudent";
+import { getStudentByID } from "@/Data/GET/getStudentByID";
 
 type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 type TablePaginationConfig = Exclude<
@@ -39,7 +37,7 @@ interface DataType {
   phone_number: string | null;
   address: string | null;
   nationality: string | null;
-  job_title: string[] | null;
+  job_title: string | null;
 }
 [];
 
@@ -50,90 +48,15 @@ interface TableParams {
   filters?: Parameters<GetProp<TableProps, "onChange">>[1];
 }
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: "Name",
-    dataIndex: "name",
-    sorter: true,
-    render: (name) => (!name ? "-" : name),
-    key: "1",
-  },
-  {
-    title: "Email",
-    dataIndex: "email",
-    render: (col) => (!col ? "-" : col),
-    key: "2",
-  },
-  {
-    title: "Phone Number",
-    dataIndex: "phone_number",
-    render: (col) => (!col ? "-" : col),
-    key: "3",
-  },
-  {
-    title: "Address",
-    dataIndex: "address",
-    render: (col) => (!col ? "-" : col),
-    key: "4",
-  },
-
-  {
-    title: "Nationality",
-    dataIndex: "nationality",
-    render: (col) => (!col ? "-" : col),
-    key: "5",
-  },
-  {
-    title: "Job Title",
-    dataIndex: "job_title",
-    render: (jobTitles: string[]) => (!jobTitles ? "-" : jobTitles.join(", ")),
-    key: "7",
-  },
-  {
-    title: "action",
-    dataIndex: "action",
-    render: (_, record) => (
-      <Popover
-        content={
-          <div className="flex flex-col gap-5">
-            <Button
-              className="text-lg border-transparent hover:!border-transparent shadow-none text-gray-400 !justify-start"
-              icon={<Pencil className="text-black" size={20} />}
-            >
-              Edit
-            </Button>
-            <Button
-              className="text-lg border-transparent hover:!border-transparent shadow-none text-gray-400"
-              icon={<Trash2 size={20} className="text-red-600" />}
-            >
-              Delete
-            </Button>
-          </div>
-        }
-        placement="bottomRight"
-        trigger="click"
-      >
-        <Button
-          className="bg-transparent border-transparent hover:!bg-transparent hover:!border-transparent shadow-none"
-          icon={<EllipsisVertical size={20} />}
-        />
-      </Popover>
-    ),
-    key: "8",
-  },
-];
-
-const defaultCheckedList = columns.map((item) => item.key as string);
-const realDefaultCheckedList = defaultCheckedList;
-
 const App: React.FC = () => {
-  const [data, setData] = useState<DataType[]>();
+  const [data, setData] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(false);
-  const [filteredColumns, setfilteredColumns] = useState(columns);
-  const [hideFilters, setHideFilters] = useState<boolean>(false);
+  const [hideCF, setHideCF] = useState<boolean>(false);
+  const [hideF, setHideF] = useState<boolean>(false);
   const [iUE, setIUE] = useState<boolean>(false);
-  const [checkedList, setCheckedList] = useState(defaultCheckedList);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [update, setUpdate] = useState<boolean>(true);
+  const [edit, setEdit] = useState({ isEdit: false, id: 0 });
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -142,9 +65,100 @@ const App: React.FC = () => {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleOk = async () => {
-    insertStudents()
+  const handleOk = async (data: DataType) => {
+    insertStudents(data);
+    setUpdate(!update);
+    setIsModalOpen(false);
   };
+
+  const columns: ColumnsType<DataType> = [
+    {
+      title: "Name",
+      dataIndex: "name",
+      sorter: true,
+      render: (name) => (!name ? "-" : name),
+      key: "1",
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      render: (col) => (!col ? "-" : col),
+      key: "2",
+    },
+    {
+      title: "Phone Number",
+      dataIndex: "phone_number",
+      render: (col) => (!col ? "-" : col),
+      key: "3",
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+      render: (col) => (!col ? "-" : col),
+      key: "4",
+    },
+
+    {
+      title: "Nationality",
+      dataIndex: "nationality",
+      render: (col) => (!col ? "-" : col),
+      key: "5",
+    },
+    {
+      title: "Job Title",
+      dataIndex: "job_title",
+      render: (col) => (!col ? "-" : col),
+      key: "7",
+    },
+    {
+      title: "action",
+      dataIndex: "action",
+      render: (_, record) => (
+        <Popover
+          content={
+            <div className="flex flex-col gap-5">
+              <Button
+                className="text-lg border-transparent hover:!border-transparent shadow-none text-gray-400 !justify-start"
+                icon={<Pencil className="text-black" size={20} />}
+                onClick={() => {
+                  deleteStudent([record.id]);
+                  setEdit({ isEdit: true, id: record.id });
+                  setIsModalOpen(true);
+                  fetchStudentByID(record.id);
+                }}
+              >
+                Edit
+              </Button>
+              <Button
+                className="text-lg border-transparent hover:!border-transparent shadow-none text-gray-400"
+                icon={<Trash2 size={20} className="text-red-600" />}
+                onClick={() => {
+                  deleteStudent([record.id]);
+                  setUpdate(!update);
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          }
+          placement="bottomRight"
+          trigger="click"
+        >
+          <Button
+            className="bg-transparent border-transparent hover:!bg-transparent hover:!border-transparent shadow-none"
+            icon={<EllipsisVertical size={20} />}
+          />
+        </Popover>
+      ),
+      key: "8",
+    },
+  ];
+
+  const defaultCheckedList = columns.map((item) => item.key as string);
+  const realDefaultCheckedList = defaultCheckedList;
+
+  const [checkedList, setCheckedList] = useState(defaultCheckedList);
+  const [filteredColumns, setfilteredColumns] = useState(columns);
 
   const newColumns = columns.map((item) => {
     console.log({ item });
@@ -184,6 +198,7 @@ const App: React.FC = () => {
     tableParams.sortOrder,
     tableParams.sortField,
     searchQuery,
+    update,
   ]);
 
   const handleTableChange: TableProps<DataType>["onChange"] = (
@@ -227,6 +242,20 @@ const App: React.FC = () => {
     }
   };
 
+  const [studentData, setStudentData] = useState([]);
+  const [isLoadingg, setisLoadingg] = useState(false);
+
+  async function fetchStudentByID(id: number) {
+    const data = await getStudentByID(id);
+    setisLoadingg(true);
+    if (data) {
+      setisLoadingg(false);
+      setStudentData(data);
+    }
+  }
+
+  console.log(studentData);
+
   return (
     <>
       <ConfigProvider
@@ -252,7 +281,7 @@ const App: React.FC = () => {
             type="primary"
             size="large"
             icon={<Layers size={20} />}
-            onClick={() => setHideFilters(!hideFilters)}
+            onClick={() => setHideCF(!hideCF)}
           >
             Columns
           </Button>
@@ -261,6 +290,7 @@ const App: React.FC = () => {
             type="primary"
             size="large"
             icon={<Filter size={20} />}
+            onClick={() => setHideF(!hideF)}
           >
             Filters
           </Button>
@@ -277,10 +307,28 @@ const App: React.FC = () => {
           </Button>
         </div>
         <div>
-        <AsidePop setClose={() => setIsModalOpen(false)} setIUE={setIUE} iUE={iUE} isOpen={isModalOpen} handleOk={handleOk} />
+          <AsidePop
+            setClose={() => setIsModalOpen(false)}
+            setIUE={setIUE}
+            iUE={iUE}
+            isOpen={isModalOpen}
+            handleOk={handleOk}
+            defaultValues={
+              !edit.isEdit
+                ? {
+                    name: "",
+                    email: "",
+                    job_title: "",
+                    address: "",
+                    phone_number: "",
+                    nationality: "",
+                  }
+                : studentData[0]
+            }
+          />
         </div>
         <br />
-        <div className={`${!hideFilters ? "hidden" : ""}`}>
+        <div className={`${!hideCF ? "hidden" : ""}`}>
           <div className={`flex flex-wrap gap-8`}>
             {newColumns.map(
               (column) =>
@@ -297,6 +345,41 @@ const App: React.FC = () => {
           </div>
           <br />
         </div>
+        <div className={`${!hideF ? "hidden" : ""}`}>
+          <div className="flex gap-3">
+            <div className="flex gap-2 items-center">
+              <p>nationality: </p>
+              <Select
+                size="large"
+                defaultValue={'All'}
+                className="w-48"
+                options={[
+                  { value: '', label: "All"},
+                  { value: "tunisia", label: "🇹🇳" },
+                  { value: "algeria", label: "🇩🇿" },
+                  { value: "republic of congo", label: "🇨🇩" },
+                  { value: "unkown", label: "Unkown" },
+                ]}
+              />
+            </div>
+            <div className="flex gap-2 items-center">
+              <p>job title: </p>
+              <Select
+                size="large"
+                defaultValue={'All'}
+                className="w-48"
+                options={[
+                  { value: '', label: "All"},
+                  { value: "front-end", label: "Front-end" },
+                  { value: "algeria", label: "Back-end" },
+                  { value: "ai", label: "AI" },
+                  { value: "student", label: "student" },
+                ]}
+              />
+            </div>
+          </div>
+        </div>
+        <br />
 
         <Table
           columns={filteredColumns}
