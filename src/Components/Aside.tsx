@@ -77,7 +77,13 @@ const AsidePop: React.FC<AsidePopupProps> = ({
   const formInputs: {
     type: "input" | "select";
     realType?: "text" | "email";
-    name: string;
+    name:
+      | "name"
+      | "email"
+      | "job_title"
+      | "address"
+      | "phone_number"
+      | "nationality";
     label: string;
     placeholder: string;
     options?: { label: string; value: string }[];
@@ -192,7 +198,7 @@ const AsidePop: React.FC<AsidePopupProps> = ({
                   }`}
                 </label>
                 <Controller
-                  name={formInput?.name}
+                  name={formInput.name}
                   control={control}
                   rules={{ required: true }}
                   render={({ field }) => {
