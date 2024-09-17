@@ -16,7 +16,7 @@ export default function HomeLayout({ children }: { children: ReactNode }) {
         <div className="transition-colors duration-300 w-screen">
           <header className="transition-colors duration-300 bg-white h-14 w-full flex justify-end items-center px-16 shadow-right-md">
           </header>
-          <div className="transition-colors duration-300 scroll-smooth overflow-auto px-8 py-4">
+          <div className="transition-colors duration-300 scroll-smooth overflow-auto w-full px-8 py-4">
             {children}
           </div>
         </div>

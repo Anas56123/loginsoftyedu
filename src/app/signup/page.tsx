@@ -11,7 +11,7 @@ import SoftyEduLogo from "@/../public/SoftyEduLogo.svg";
 import Salt from "@/../public/Saly-1.png";
 import Link from "next/link";
 import { insertAccount } from "@/Data/INSERT/insertAccoount";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 const Home: React.FC = () => {
   const {
