@@ -1,6 +1,7 @@
 import { Checkbox, Pagination } from "antd";
 import React, { useState } from "react";
 import type { PaginationProps } from "antd";
+import { ArrowUpNarrowWide } from "lucide-react";
 
 interface Column<T> {
   title: string;
@@ -22,6 +23,9 @@ interface CustomTableProps<T> {
   setItemsPerPage: (value: number) => void;
   setCurrentPage: (value: number) => void;
   currentPage: number;
+  setIsSort: (value: any) => void;
+  isSort: any;
+  handleSort: Function;
 }
 
 const CustomTable = <T extends DataSourceItem>({
@@ -32,6 +36,9 @@ const CustomTable = <T extends DataSourceItem>({
   setItemsPerPage,
   setCurrentPage,
   currentPage,
+  setIsSort,
+  isSort,
+  handleSort,
 }: CustomTableProps<T>) => {
   const [selectedRows, setSelectedRows] = useState<T[]>([]);
 
@@ -40,11 +47,11 @@ const CustomTable = <T extends DataSourceItem>({
     pageSize
   ) => {
     console.log({ current, pageSize });
-    setItemsPerPage(pageSize)
+    setItemsPerPage(pageSize);
   };
 
-  const onChangePagenation: PaginationProps['onChange'] = (pageNumber) => {
-    console.log('Page: ', pageNumber);
+  const onChangePagenation: PaginationProps["onChange"] = (pageNumber) => {
+    console.log("Page: ", pageNumber);
     setCurrentPage(pageNumber);
   };
 
@@ -79,11 +86,27 @@ const CustomTable = <T extends DataSourceItem>({
               </th>
               {columns.map((col) => (
                 <th
-                  key={col.key}
-                  className="px-6 py-3 text-left text-xs font-medium text-[#778BAA] uppercase tracking-wider"
-                >
-                  {col.title}
-                </th>
+                key={col.key}
+                className="px-6 py-3 text-left text-xs font-medium text-[#778BAA] uppercase tracking-wider cursor-pointer"
+                onClick={() => {
+                  if (col.title === "Name" || col.title === "Email" || col.title === "Phone Number") {
+                    handleSort(col.dataIndex as string); // Trigger sorting for these columns
+                  }
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="translate-y-1/3">{col.title}</span>
+                  {col.title === "Name" || col.title === "Email" || col.title === "Phone Number" ? (
+                    <button>
+                      <ArrowUpNarrowWide
+                        className={`${isSort?.name === col.dataIndex ? (isSort?.sort ? "rotate-180" : "") : ""}`}
+                      />
+                    </button>
+                  ) : (
+                    ""
+                  )}
+                </div>
+              </th>
               ))}
             </tr>
           </thead>
@@ -121,7 +144,7 @@ const CustomTable = <T extends DataSourceItem>({
           defaultPageSize={5}
           onShowSizeChange={onShowSizeChange}
           current={currentPage}
-          pageSizeOptions={[5,8,10,20]}
+          pageSizeOptions={[5, 8, 10, 20]}
           onChange={onChangePagenation}
           total={dataLength}
         />

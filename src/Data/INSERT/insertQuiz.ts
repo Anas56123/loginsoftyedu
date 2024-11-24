@@ -14,12 +14,12 @@ type DataType = {
 
 export async function insertQuiz(
   insertedData: DataType,
-  created_by: string,
+  createdBy: string,
   icon: string
 ) {
   const fullData = {
     ...insertedData,
-    created_by: created_by,
+    created_by: createdBy,
     icon: icon,
   };
 
@@ -31,4 +31,6 @@ export async function insertQuiz(
   if (error) {
     console.error(error);
   }
+
+  return data;
 }

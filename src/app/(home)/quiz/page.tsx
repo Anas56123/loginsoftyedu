@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type QuizQuestion = {
   title: string;
@@ -61,6 +62,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dataLength, setDataLength] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
 
   const fetchData = async () => {
     setLoading(true);
@@ -96,10 +98,10 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleOk = (data: FormValues) => {
+  const handleOk = async (data: FormValues) => {
     console.log(data);
     setIsModalOpen(false);
-    insertQuiz(
+    const success = await insertQuiz(
       data,
       "test",
       data.formation == "react" || data.formation == "javascript" || data.formation == "typescript" || data.formation == "nextjs"
@@ -110,6 +112,10 @@ export default function App() {
         ? "https://bxigztsmavbbeybpccmv.supabase.co/storage/v1/object/sign/URL/download.jpeg?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJVUkwvZG93bmxvYWQuanBlZyIsImlhdCI6MTcyNjQ3ODMwMCwiZXhwIjoxNzU4MDE0MzAwfQ.sU7OtK9axjzt_-Me2nK5G-3f3Gt3SHcWLjZfrSCjO4Y&t=2024-09-16T09%3A18%3A20.987Z"
         : ""
     );
+    console.log(success);
+    if (success) {
+      router.push(`/questions/${success[0].id}/create`);
+    }
   };
 
   const onShowSizeChange: PaginationProps["onShowSizeChange"] = (

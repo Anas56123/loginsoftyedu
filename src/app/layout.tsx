@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Image from "next/image";
+import SoftyEduLogo from "@/../public/SoftyEduLogo.svg";
 import "./globals.css";
-
+import { Button, Input } from "antd";
+import { Search } from "lucide-react";
+import NotificationIcon from "@/../public/Notification.svg";
+import ProfileIcon from "@/../public/DUPP.svg";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -16,8 +21,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-        <body className={inter.className}>{children}</body>
-      
+      <body className={inter.className}>
+        <header className="w-full flex items-center justify-between p-3">
+          <Image src={SoftyEduLogo} alt="SoftyEduLogo" width={125} height={125} />
+          <Input size="large" prefix={<Search />} placeholder="Search" className="w-1/3" />
+          <div className="flex items-center gap-3">
+            <Image src={NotificationIcon} alt="NotificationIcon" width={25} height={25} />
+            <Button size='large' type="primary">Upgrade</Button>
+            <Image src={ProfileIcon} alt="ProfileIcon" width={50} height={50} />
+          </div>
+        </header>
+        <div className="w-full h-[calc(100vh-120px)]">
+          {children}
+        </div>
+      </body>
     </html>
   );
 }

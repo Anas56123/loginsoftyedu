@@ -121,6 +121,21 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [isLoading, setisLoading] = useState<boolean>(false);
   const [data, setData] = useState<any[]>([]);
+  const [isSort, setIsSort] = useState<
+    | {
+        name: "name";
+        sort: boolean;
+      }
+    | {
+        name: "email";
+        sort: boolean;
+      }
+    | {
+        name: "phone_number";
+        sort: boolean;
+      }
+    | null
+  >(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [popupFor, setPopupFor] = useState<"Add" | "Edit">("Add");
   const [deleteIds, setDeleteIds] = useState<any[]>([]);
@@ -194,6 +209,17 @@ const HomePage: React.FC = () => {
     }));
   }
 
+  const handleSort = (column: string) => {
+    setIsSort((prevSort) => {
+      if (!prevSort || prevSort.name !== column) {
+        return { name: column, sort: true }; // ascending order
+      } else {
+        return { name: column, sort: !prevSort.sort }; // toggle between ascending and descending
+      }
+    });
+    setUpdate(!update);
+  };
+
   const fetchData = async () => {
     setLoading(true);
 
@@ -212,6 +238,9 @@ const HomePage: React.FC = () => {
     }
     if (filterSelect.job_title !== "") {
       query = query.eq("job_title", filterSelect.job_title);
+    }
+    if (isSort !== null) {
+      query = query.order(isSort?.name, { ascending: isSort?.sort });
     }
 
     let { data: students, count, error } = await query;
@@ -233,7 +262,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-  }, [update, filterSelect, itemsPerPage, currentPage]);
+  }, [update, filterSelect, itemsPerPage, currentPage, isSort]);
 
   const handleRowSelect = (selectedRows: DataSourceItem[]) => {
     setSelectedRows(selectedRows);
@@ -270,6 +299,9 @@ const HomePage: React.FC = () => {
               setUpdate(!update);
             }}
           />
+          <p>
+            {selectedRows.length}/{dataLength}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -402,6 +434,9 @@ const HomePage: React.FC = () => {
           setItemsPerPage={setItemsPerPage}
           setCurrentPage={setCurrentPage}
           currentPage={currentPage}
+          setIsSort={setIsSort}
+          isSort={isSort}
+          handleSort={handleSort}
         />
       </div>
     </div>
