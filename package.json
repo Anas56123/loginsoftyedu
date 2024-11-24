@@ -19,6 +19,7 @@
     "lucide-react": "^0.414.0",
     "next": "14.2.5",
     "react": "^18",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",
     "react-popup": "^0.11.2",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
+    "@types/react-beautiful-dnd": "^13.1.8",
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",

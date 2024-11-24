@@ -297,6 +297,7 @@ const HomePage: React.FC = () => {
               console.log("hellooooo", { deleteIds });
               deleteStudent(deleteIds);
               setUpdate(!update);
+              setDeleteIds([])
             }}
           />
           <p>
