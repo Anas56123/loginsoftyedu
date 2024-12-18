@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import DragAndDrop from "@/../public/uploader.svg";
 import { useState } from "react";
+import DragDropArea from "./DragDropArea";
 
 export default function ImgBase() {
   const [correctAnswer, setCorrectAnswer] = useState<"A" | "B">("A");
@@ -19,12 +20,9 @@ export default function ImgBase() {
         />
         <div className="flex gap-4 items-center">
           <div className="flex flex-col gap-4">
-            <Image
-              src={DragAndDrop}
-              alt="question-img-base"
-              width={400}
-              height={400}
-            />
+            <DragDropArea onFileSelect={(file) => {
+              // Handle the selected file here
+            }} />
             <div className="flex flex-col gap-2 items-center">
               <div className="border-2 border-[#D6DAE1] w-10 h-10 rounded-lg p-2 flex items-center justify-center">
                 A

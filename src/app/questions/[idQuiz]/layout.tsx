@@ -4,6 +4,7 @@ import Image from "next/image";
 import React from "react";
 import SoftyEduLogo from "@/../public/SoftyEduLogo.svg";
 import ProfileIcon from "@/../public/DUPP.svg";
+import NotificationIcon from "@/../public/Notification.svg";
 
 function QuestionsLayout({ children }: { children: React.ReactNode }) {
   return (

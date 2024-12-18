@@ -18,7 +18,7 @@ export default function Questions() {
     id: "1",
     title: "What is the capital of France?",
     options: ["London", "Berlin", "Paris", "Madrid"],
-    type: "option",
+    type: "img",
     correctAnswer: "Paris",
   });
 
